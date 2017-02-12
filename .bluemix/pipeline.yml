@@ -33,7 +33,7 @@ stages:
     script: |
       #!/bin/bash
       cf push "${CF_APP}"
-- name: DEPLOY
+- name: Push to Docker
   inputs:
   - type: job
     stage: BUILD
