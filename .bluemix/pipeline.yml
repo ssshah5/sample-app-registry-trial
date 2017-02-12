@@ -45,7 +45,7 @@ stages:
   - name: Docker Image
     type: builder
     artifact_dir: ''
-    build_type: "IBM Container Service"
+    extension_id: ibm.devops.services.pipeline.container.builder
     target:
       region_id: ibm:yp:us-south
       organization: pipeauto@us.ibm.com
