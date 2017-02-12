@@ -33,6 +33,29 @@ stages:
     script: |
       #!/bin/bash
       cf push "${CF_APP}"
+- name: DEPLOY
+  inputs:
+  - type: job
+    stage: BUILD
+    job: Build
+    dir_name: null
+  triggers:
+  - type: stage
+  jobs:
+  - name: Docker Image
+    type: builder
+    extension_id: ibm.devops.services.pipeline.container.builder
+    target:
+      region_id: ${PROD_REGION_ID}
+      organization: {PROD_ORG_NAME}
+      space: ${PROD_SPACE_NAME}
+    COMMAND: |-
+      #Build
+      ant dist
+
+      # Build Docker Image
+      ant docker
+    USE_CACHED_LAYERS: 'false'
 hooks:
 - enabled: true
   label: null
