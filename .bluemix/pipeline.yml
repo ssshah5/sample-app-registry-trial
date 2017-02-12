@@ -35,11 +35,12 @@ stages:
       cf push "${CF_APP}"
 - name: BUILD
   inputs:
-  - type: git
-    branch: master
-    service: ${SAMPLE_REPO}
+  - type: job
+    stage: Build
+    job: Build
+    dir_name: null
   triggers:
-  - type: commit
+  - type: stage
   jobs:
   - name: Build and Push Docker Image
     type: builder
