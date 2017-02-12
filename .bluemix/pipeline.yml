@@ -14,10 +14,29 @@ stages:
     build_type: npm
     script: |
       npm install
-- name: DEPLOY
+- name: Deploy
   inputs:
   - type: job
-    stage: BUILD
+    stage: Build
+    job: Build
+    dir_name: null
+  triggers:
+  - type: stage
+  jobs:
+  - name: Deploy
+    type: deployer
+    target:
+      region_id: ${PROD_REGION_ID}
+      organization: ${PROD_ORG_NAME}
+      space: ${PROD_SPACE_NAME}
+      application: sample-registry-app
+    script: |
+      #!/bin/bash
+      cf push "${CF_APP}"
+- name: Deploy
+  inputs:
+  - type: job
+    stage: Build
     job: Build
     dir_name: null
   triggers:
@@ -25,18 +44,20 @@ stages:
   jobs:
   - name: Docker Image
     type: builder
-    extension_id: ibm.devops.services.pipeline.container.builder
+    artifact_dir: ''
+    build_type: "IBM Container Service"
     target:
       region_id: ibm:yp:us-south
       organization: pipeauto@us.ibm.com
       space: dev
-    COMMAND: |-
+    script: |
       #Build
       ant dist
 
       # Build Docker Image
       ant docker
     USE_CACHED_LAYERS: 'false'
+
 hooks:
 - enabled: true
   label: null
