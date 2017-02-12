@@ -41,14 +41,14 @@ stages:
   triggers:
   - type: commit
   jobs:
-  - name: Container build
+  - name: Build and Push Docker Image
     type: builder
     extension_id: ibm.devops.services.pipeline.container.builder
     target:
       region_id: ${PROD_REGION_ID}
       organization: ${PROD_ORG_NAME}
       space: ${PROD_SPACE_NAME}
-    USE_CACHED_LAYERS: 'true'
+    USE_CACHED_LAYERS: 'false'
     COMMAND: |
       #Build
       ant dist
