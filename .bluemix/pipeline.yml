@@ -28,8 +28,8 @@ stages:
     type: deployer
     target:
       region_id: ibm:yp:us-south
-      organization: ssshah@us.ibm.com
-      space: dev
+      organization: ${PROD_ORG_NAME}
+      space: ${PROD_SPACE_NAME}
       application: sample-pipeline-registry
     script: |
       #!/bin/bash
