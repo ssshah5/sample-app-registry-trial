@@ -21,25 +21,6 @@ stages:
       # To use Node.js 4.2.2, uncomment the following line:
       #export PATH=/opt/IBM/node-v4.2/bin:$PATH
       npm install
-- name: Deploy
-  inputs:
-  - type: job
-    stage: Build
-    job: Build
-    dir_name: null
-  triggers:
-  - type: stage
-  jobs:
-  - name: Deploy
-    type: deployer
-    target:
-      region_id: ibm:yp:us-south
-      organization: ssshah@us.ibm.com
-      space: dev
-      application: sample-pipeline-registry
-    script: |
-      #!/bin/bash
-      cf push "${CF_APP}"
 - name: Push to BM Registry
   inputs:
   - url: https://github.com/ssshah5/sample-app-registry.git
