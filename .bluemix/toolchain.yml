@@ -14,7 +14,7 @@ sample-repo:
   service_id: githubpublic
   parameters:
     repo_name: "{{name}}"
-    repo_url: https://github.com/adamkingit/bluemix-php-sample
+    repo_url: https://github.com/ssshah5/sample-app-registry.git
     type: clone
     has_issues: false
 
@@ -27,13 +27,13 @@ sample-build:
     configuration:
      content: $file(pipeline.yml)
      env:
-      SAMPLE_REPO: "sample-repo"
+      SAMPLE_REPO: "sample-app-registry"
       CF_APP_NAME: "{{deploy.parameters.prod-app-name}}"
       PROD_SPACE_NAME: "{{deploy.parameters.prod-space}}"
       PROD_ORG_NAME: "{{deploy.parameters.prod-organization}}"
       PROD_REGION_ID: "{{deploy.parameters.prod-region}}"
      execute: true
-    services: ["sample-repo"]
+    services: ["sample-app-registry"]
   hidden: [form, description]
 
 #Deployment

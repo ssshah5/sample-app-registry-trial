@@ -2,34 +2,20 @@
 stages:
 - name: Build
   inputs:
-  - type: git
+  - url: https://github.com/ssshah5/sample-app-registry.git
+    type: git
     branch: master
-    service: ${SAMPLE_REPO}
+    dir_name: null
   triggers:
   - type: commit
   jobs:
   - name: Build
     type: builder
     artifact_dir: ''
-    build_type: node
-    script: |
-      #!/bin/bash
-      #Install PJP
-
-      echo "apt-get -qq update"
-      sudo apt-get -qq update
-
-      echo "sudo apt-get -qq -y install php5"
-      sudo apt-get -qq -y install php5
-
-      echo "apt-get -qq clean"
-      sudo apt-get -qq clean
-
-      #Lint the PHP source
-      echo
-      echo "Lint the PHP source"
-      php -l *.php
-- name: Ansible Deploy
+    build_type: npm
+    script: |-
+      npm install
+- name: Deploy
   inputs:
   - type: job
     stage: Build
@@ -37,19 +23,40 @@ stages:
     dir_name: null
   triggers:
   - type: stage
-  properties:
-  - name: APP_HOSTNAME
-    type: text
   jobs:
   - name: Deploy
     type: deployer
     target:
-      region_id: ${PROD_REGION_ID}
+      region_id: ibm:yp:us-south
+      organization: ssshah@us.ibm.com
+      space: dev
+      application: sample-pipeline-registry
+    script: |
+      #!/bin/bash
+      cf push "${CF_APP}"
+- name: Push to BM Registry
+  inputs:
+  - url: https://github.com/ssshah5/sample-app-registry.git
+    type: git
+    branch: master
+    dir_name: null
+  triggers:
+  - type: commit
+  jobs:
+  - name: Docker Image
+    type: builder
+    extension_id: ibm.devops.services.pipeline.container.builder
+    target:
+      region_id: ibm:yp:us-south
       organization: ${PROD_ORG_NAME}
       space: ${PROD_SPACE_NAME}
-      application: Pipeline
-    script: "#!/bin/bash\n\necho \"Install Ansible\"\nsetup_tools/install_ansible.sh\
-      \ \n\necho \"Run Ansible playbook\"\nansible-playbook .playbook.yml\n\necho \"Ansible playbook complete\"\n"
+    COMMAND: |-
+      # Build and Push the image
+      ant dist
+
+      # Push the image
+      ant docker
+    USE_CACHED_LAYERS: 'false'
 hooks:
 - enabled: true
   label: null
