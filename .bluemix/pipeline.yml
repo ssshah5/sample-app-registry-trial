@@ -1,50 +1,55 @@
 ---
 stages:
-- name: BUILD
+- name: Build
   inputs:
-  - url: https://github.com/ssshah5/node-hello-world.git
-    type: git
+  - type: git
     branch: master
     service: ${SAMPLE_REPO}
-    dir_name: null
   triggers:
   - type: commit
   jobs:
   - name: Build
     type: builder
     artifact_dir: ''
-    build_type: npm
-    script: |-
+    build_type: shell
+    script: |
       #!/bin/bash
-      # The default Node.js version is 0.10.40
-      # To use Node.js 0.12.7, uncomment the following line:
-      #export PATH=/opt/IBM/node-v0.12/bin:$PATH
-      # To use Node.js 4.2.2, uncomment the following line:
-      #export PATH=/opt/IBM/node-v4.2/bin:$PATH
-      npm install
-- name: Push to Registry
+      #Install PJP
+
+      echo "apt-get -qq update"
+      sudo apt-get -qq update
+
+      echo "sudo apt-get -qq -y install php5"
+      sudo apt-get -qq -y install php5
+
+      echo "apt-get -qq clean"
+      sudo apt-get -qq clean
+
+      #Lint the PHP source
+      echo
+      echo "Lint the PHP source"
+      php -l *.php
+- name: Ansible Deploy
   inputs:
   - type: job
-    stage: BUILD
+    stage: Build
     job: Build
     dir_name: null
   triggers:
   - type: stage
+  properties:
+  - name: APP_HOSTNAME
+    type: text
   jobs:
-  - name: Docker Image
-    type: builder
-    extension_id: ibm.devops.services.pipeline.container.builder
+  - name: Deploy
+    type: deployer
     target:
-      region_id: ${PROD_ORG_NAME}
-      organization: ${PROD_SPACE_NAME}
-      space: dev
-    COMMAND: |-
-      #Build
-      ant dist
-
-      # Build Docker Image
-      ant docker
-    USE_CACHED_LAYERS: 'false'
+      region_id: ${PROD_REGION_ID}
+      organization: ${PROD_ORG_NAME}
+      space: ${PROD_SPACE_NAME}
+      application: Pipeline
+    script: "#!/bin/bash\n\necho \"Install Ansible\"\nsetup_tools/install_ansible.sh\
+      \ \n\necho \"Run Ansible playbook\"\nansible-playbook .playbook.yml\n\necho \"Ansible playbook complete\"\n"
 hooks:
 - enabled: true
   label: null
