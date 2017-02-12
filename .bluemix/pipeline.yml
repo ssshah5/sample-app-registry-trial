@@ -1,10 +1,11 @@
 ---
 stages:
-- name: Build
+- name: BUILD
   inputs:
-  - url: https://github.com/ssshah5/sample-app-registry.git
+  - url: https://github.com/ssshah5/node-hello-world.git
     type: git
     branch: master
+    service: ${SAMPLE_REPO}
     dir_name: null
   triggers:
   - type: commit
@@ -21,27 +22,27 @@ stages:
       # To use Node.js 4.2.2, uncomment the following line:
       #export PATH=/opt/IBM/node-v4.2/bin:$PATH
       npm install
-- name: Push to BM Registry
+- name: Push to Registry
   inputs:
-  - url: https://github.com/ssshah5/sample-app-registry.git
-    type: git
-    branch: master
+  - type: job
+    stage: BUILD
+    job: Build
     dir_name: null
   triggers:
-  - type: commit
+  - type: stage
   jobs:
   - name: Docker Image
     type: builder
     extension_id: ibm.devops.services.pipeline.container.builder
     target:
-      region_id: ibm:yp:us-south
-      organization: pipeauto@us.ibm.com
-      space: dockerimages
+      region_id: ${PROD_ORG_NAME}
+      organization: ${PROD_SPACE_NAME}
+      space: dev
     COMMAND: |-
-      # Build and Push the image
+      #Build
       ant dist
 
-      # Push the image
+      # Build Docker Image
       ant docker
     USE_CACHED_LAYERS: 'false'
 hooks:
